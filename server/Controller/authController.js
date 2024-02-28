@@ -6,6 +6,7 @@ import Jwt from "jsonwebtoken";
 import {getAuth} from "firebase-admin/auth";
 
 import User from "../Models/User.js";
+import { genrateUploadURL } from "../Configs/AWS.js";
 
 //genrating user name
 const generateUsername = async (email) => {
@@ -201,4 +202,14 @@ export const GoogleAuth = async (req,res) => {
   } catch (error) {
     console.log(error)
   }
+}
+
+//image url 
+export const imgURLUpload = async (req,res) => {
+  genrateUploadURL()
+  .then((url)=> res.status(200).json({ uploadURL: url}))
+  .catch((error) => {
+    console.log(error.message);
+    return res.status(500).json({ error:error.message})
+  })
 }

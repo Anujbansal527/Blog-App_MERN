@@ -61,7 +61,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        <Link to={"/edditor"} className="hidden md:flex gap-2 link ">
+        <Link to={"/editor"} className="hidden md:flex gap-2 link ">
           <i className="fi fi-rr-attribution-pen"></i>
           <p>Write </p>
         </Link>
