@@ -13,17 +13,15 @@ const BlogEditor = () => {
 
   let blogBannerRef = useRef();
 
-  let {
-   blog, blog: { title, banner, content, tags, des }, setBlog
-  } = useContext(EditorContext);
+  let { blog, blog: { title, banner, content, tags, des }, setBlog, textEditor ,setTextEditor , editorState ,setEditorState } = useContext(EditorContext);
 
   useEffect(()=>{
-    let editor = new EditorJs({
+    setTextEditor( new EditorJs({
         holderId: 'textEditor',
-        data:"",
+        data:content,
         tools:tools,
         placeholder: "Let's create a beautiful story..."
-    })
+    }))
   },[])
 
   const BannerUpload = (e) => {
@@ -73,6 +71,31 @@ const BlogEditor = () => {
     img.src = Banner
   }
 
+  const PublishBlog = () => {
+    if(!banner.length ){
+      return toast.error('Please upload a blog image!');
+    }
+
+    if(!title.length){
+      return toast.error("Title is empty");
+    }
+
+    if(textEditor.isReady){
+      textEditor.save()
+      .then((data)=>{
+        console.log(data);
+        if(data.blocks.length){
+          setBlog({...blog, content:data});
+          setEditorState("publish")
+        }
+        else{
+          return toast.error("Write Something !");
+        }
+      })
+      .catch(err=>console.log(err))
+    }
+  }
+
   return (
     <>
       <nav className="navbar">
@@ -85,7 +108,7 @@ const BlogEditor = () => {
         </p>
 
         <div className="flex gap-4 ml-auto">
-          <button className="btn-dark py-2">Publish</button>
+          <button className="btn-dark py-2" onClick={PublishBlog}>Publish</button>
 
           <button className="btn-light py-2">Save Draft</button>
         </div>
@@ -115,6 +138,7 @@ const BlogEditor = () => {
             </div>
 
             <textarea
+              defaultValue={title}
               placeholder="Blog Title"
               className="text-4xl font-medium w-full h-20 outline-none resize-none mt-10 leading-tight placeholder:opacity-40"
               onKeyDown={TitleKeyDown}
