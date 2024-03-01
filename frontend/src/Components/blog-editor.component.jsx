@@ -40,7 +40,7 @@ const BlogEditor = () => {
           placeholder: "Let's create a beautiful story...",
         })
       );
-    }
+    } 
   }, []);
 
   const BannerUpload = (e) => {
@@ -92,7 +92,7 @@ const BlogEditor = () => {
 
   const PublishBlog = () => {
     if (!banner.length) {
-      return toast.error("Please upload a blog image!");
+      return toast.error("Please upload an blog image!");
     }
 
     if (!title.length) {
