@@ -3,17 +3,25 @@ import AnimationWrapper from "../Common/page-animation";
 import toast, { Toaster } from "react-hot-toast";
 import { EditorContext } from "../Pages/editor.pages";
 import Tag from "./tags.component";
+import axios from "axios";
+import { UserContext } from "../App";
+import { useNavigate } from "react-router-dom";
 
 const PublishForm = () => {
+
   let characterLimit = 200;
   let tagLimit = 10;
 
+  let {userAuth: { access_token }} = useContext(UserContext)
+
   let {
-    blog: { banner, title, tags, des },
+    blog: { banner, title, tags, des, content },
     setEditorState,
     blog,
     setBlog,
   } = useContext(EditorContext);
+
+  let navigate = useNavigate();
 
   const CloseBtn = () => {
     setEditorState("editor");
@@ -55,7 +63,57 @@ const PublishForm = () => {
 
       e.target.value="";
   }
-}
+  }
+
+  const PublishBtn = (e) => {
+
+    if(e.target.className.includes( "disable")) {
+      return
+    };
+
+    if(!title.length){
+      return toast.error( "Title is required" );
+    }
+
+    if(!des.length){
+      return toast.error("Description is required");
+    }
+
+    if(!tags.length){
+      return toast.error("Enter At least 1 tag")
+    }
+
+    let loading = toast.loading('Publishing .........')
+  
+    e.target.classList.add("disable")
+
+    let blogObj = {
+      title,banner,des,tags,content,draft:false
+    }
+
+    axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/create-blog`,
+      blogObj,
+      {headers:{Authorization:`Bearer ${access_token}`}}
+    )
+    .then(()=>{
+        e.target.classList.remove("disable")
+        toast.dismiss(loading)
+        toast.success("Your Blog has been published successfully")
+
+        setTimeout(()=>{
+          navigate("/")
+        },500)
+    })
+    .catch(({response})=>{
+
+      e.target.classList.remove("disable")
+       toast.dismiss(loading)
+
+       return toast.error(response.data.error)
+    });
+
+  }
+
   return (
     <AnimationWrapper>
       <section className="w-screen min-h-screen grid items-center lg:grid-cols- py-16 lg:gap-4">
@@ -132,7 +190,10 @@ const PublishForm = () => {
                 } Tags Left
             </p>
 
-            <button className="btn-dark px-8">
+            <button 
+                className="btn-dark px-8"
+                onClick={PublishBtn}  
+            >
                   Publish
             </button>
 

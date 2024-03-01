@@ -180,12 +180,10 @@ export const GoogleAuth = async (req, res) => {
         if (user) {
           //login
           if (!user.google_auth) {
-            return res
-              .status(403)
-              .json({
-                error:
-                  "This Email was Signed Up Without Google Please log in with password to access the account",
-              });
+            return res.status(403).json({
+              error:
+                "This Email was Signed Up Without Google Please log in with password to access the account",
+            });
           }
         } else {
           //signin
@@ -214,12 +212,10 @@ export const GoogleAuth = async (req, res) => {
         return res.status(200).json(FormateUserData(user));
       })
       .catch((error) => {
-        return res
-          .status(500)
-          .json({
-            error:
-              "Failed to authenticate you with google. Try with other Google Account",
-          });
+        return res.status(500).json({
+          error:
+            "Failed to authenticate you with google. Try with other Google Account",
+        });
       });
   } catch (error) {
     console.log(error);
@@ -242,26 +238,28 @@ export const createBlog = (req, res) => {
 
   let { title, des, banner, tags, content, draft } = req.body;
 
+  if (!draft) {
+    if (!des.length) {
+      return res
+        .status(400)
+        .json({ error: "Please Provide Blog Description unser 200 Character" });
+    }
+
+    if (!banner.length) {
+      return res.status(400).json({ error: "Please Provide Blog's Banner" });
+    }
+
+    if (!content.blocks.length) {
+      return res.status(400).json({ error: "There Must Be Some Blog Content" });
+    }
+
+    if (!tags.length || tags.length > 10) {
+      return res.status(400).json({ error: `Tags must be between 1 and 10` });
+    }
+  }
+
   if (!title.length) {
     return res.status(400).json({ error: "Title is required" });
-  }
-
-  if (!des.length) {
-    return res
-      .status(400)
-      .json({ error: "Please Provide Blog Description unser 200 Character" });
-  }
-
-  if (!banner.length) {
-    return res.status(400).json({ error: "Please Provide Blog's Banner" });
-  }
-
-  if (!content.blocks.length) {
-    return res.status(400).json({ error: "There Must Be Some Blog Content" });
-  }
-
-  if (!tags.length || tags.length > 10) {
-    return res.status(400).json({ error: `Tags must be between 1 and 10` });
   }
 
   tags = tags.map((tag) => tag.toLowerCase());
@@ -283,24 +281,31 @@ export const createBlog = (req, res) => {
     draft: Boolean(draft),
   });
 
-  blog.save()
-  .then((blog) => {
-    let incVal = draft ? 0 : 1;
+  blog
+    .save()
+    .then((blog) => {
+      let incVal = draft ? 0 : 1;
 
-    User.findOneAndUpdate(
-      { _id: authorId },
-      {
-        $inc: { "account_info.total_post": incVal },
-        $push: { blogs: blog._id },
-      }
-    ).then(user=> {
-      return res.status(201).json({id:blog.blog_id});
-    }).catch(err => {
-      return res.status(500).json({error:"Server Error, faild to update post number"})
+      User.findOneAndUpdate(
+        { _id: authorId },
+        {
+          $inc: { "account_info.total_posts": incVal },
+          $push: { blogs: blog._id },
+        }
+      )
+        .then((user) => {
+          return res.status(201).json({ id: blog.blog_id });
+        })
+        .catch((err) => {
+          return res
+            .status(500)
+            .json({ error: "Server Error, faild to update post number" });
+        });
     })
-  })
-  .catch((e) => {
-    console.log("Error in saving the blog", e);
-    return res.status(500).json({ error: "Server Error, failed to save blog" });
-  });
+    .catch((e) => {
+      console.log("Error in saving the blog", e);
+      return res
+        .status(500)
+        .json({ error: "Server Error, failed to save blog" });
+    });
 };
