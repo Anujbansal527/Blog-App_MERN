@@ -1,5 +1,5 @@
 import express from "express"
-import { GoogleAuth, authSignin, authSignup, createBlog, imgURLUpload } from "../Controller/authController.js";
+import { GoogleAuth, authSignin, authSignup, createBlog, imgURLUpload, latestBlog } from "../Controller/authController.js";
 import { verifyToken } from "../MiddleWare/verifyToken.js";
 const router = express.Router();
 
@@ -19,4 +19,8 @@ router.route("/get-upload-url").get(imgURLUpload)
 //create blog
 router.route("/create-blog").post(verifyToken,createBlog)
 
-export default router; 
+//latets blog route
+router.route("/latest-blogs").get(latestBlog);
+
+
+export default router;  
