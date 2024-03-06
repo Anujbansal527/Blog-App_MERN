@@ -10,7 +10,7 @@ import TrendingBlogs from "../Components/nobanner-blog-post.component";
 import NoDataMessage from "../Components/nodata.component";
 
 const HomePage = () => {
-  let [blogs, setBlogs] = useState(null);
+  let [blogs, setBlogs] = useState([]);
   let [trend, setTrend] = useState(null);
   let [pageState, setPageState] = useState("home");
 
@@ -39,6 +39,18 @@ const HomePage = () => {
       });
   };
 
+  const FetchBlogByCategory = () => {
+    axios
+      .post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/search-blogs`,{tag:pageState})
+      .then(({ data }) => {
+        //console.log(data.blogs)
+        setBlogs(data.blogs);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
   const fetchTrendingBlog = () => {
     axios
       .get(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/trending-blogs`)
@@ -57,6 +69,7 @@ const HomePage = () => {
     setBlogs(null);
 
     if (pageState == category) {
+        
       setPageState("home");
       return;
     }
@@ -68,6 +81,9 @@ const HomePage = () => {
 
     if (pageState == "home") {
       fetchLatestBlog();
+    }
+    else{
+      FetchBlogByCategory()
     }
 
     if (TrendingBlogs) {
@@ -88,6 +104,7 @@ const HomePage = () => {
               blogs == null ? (
                 <Loader />
               ) : 
+            
               blogs.length ? 
               (
                   blogs.map((blog,i) => {
@@ -104,7 +121,6 @@ const HomePage = () => {
                 : 
                 (
                 <>
-                <h1>{blogs.length}</h1>  
                 <NoDataMessage message={"No Blogs Published"} />
                 </>
               )}
@@ -140,7 +156,8 @@ const HomePage = () => {
               </h1>
 
               <div className="flex gap-3 flex-wrap">
-                {categories.map((category, i) => {
+                {
+                  categories.map((category, i) => {
                   return (
                     <button
                       onClick={loadBlogByCategory}
