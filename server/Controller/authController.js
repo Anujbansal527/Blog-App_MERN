@@ -224,6 +224,8 @@ export const GoogleAuth = async (req, res) => {
   }
 };
 
+//creating blog
+
 //image url
 export const imgURLUpload = (req, res) => {
   genrateUploadURL()
@@ -312,8 +314,13 @@ export const createBlog = (req, res) => {
     });
 };
 
+///home page
+
 //latest-blog
 export const latestBlog = (req, res) => {
+
+  let {page} = req.body;
+
   let maxLimit = 5;
 
   Blog.find({ draft: false })
@@ -323,6 +330,7 @@ export const latestBlog = (req, res) => {
     )
     .sort({ publishedAt: -1 })
     .select("blog_id title des banner activity tags publishedAt -_id")
+    .skip((page - 1) * maxLimit)
     .limit(maxLimit)
     .then((blogs) => {
       return res.status(200).json({ blogs });
@@ -356,7 +364,7 @@ export const TrendingBlogs = (req, res) => {
 
 //search-blogs
 export const searchBlogs = (req, res) => {
-  let { tag } = req.body;
+  let { tag,page } = req.body;
 
   let findQuery = { tags: tag, draft: false };
 
@@ -369,6 +377,7 @@ export const searchBlogs = (req, res) => {
     )
     .sort({ publishedAt: -1 })
     .select("blog_id title des banner activity tags publishedAt -_id")
+    .skip((page-1)*maxLimit)
     .limit(maxLimit)
     .then((blogs) => {
       return res.status(200).json({ blogs });
@@ -377,3 +386,40 @@ export const searchBlogs = (req, res) => {
       return res.status(500).json({ error: error.message });
     });
 };
+
+
+//pagination
+
+//all-latest-blog-count
+export const allLatestBlogsCount = (req,res) => {
+
+  Blog.countDocuments({ draft: false })
+  .then(count => {
+    return res.status(200).json({totalDocs:count})
+  })
+  .catch(error=>{
+    console.log(error.message)
+    return res.status(500).json({error:error.message})
+  })
+
+} 
+
+
+//search-blog-count
+export const searchBlogCount = (req,res) => {
+  
+  let {tag} = req.body
+
+  let findQuery = { tags: tag, draft: false };
+
+  Blog.countDocuments(findQuery)
+  .then(count => {
+    return res.status(200).json({totalDocs:count})
+  })
+  .catch(error=>{
+    console.log(error.message)
+    return res.status(500).json({error:"No result found"});
+  })
+
+}
+

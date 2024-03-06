@@ -8,10 +8,15 @@ import Loader from "../Components/loader.component";
 import BlogPost from "../Components/blog-post.component";
 import TrendingBlogs from "../Components/nobanner-blog-post.component";
 import NoDataMessage from "../Components/nodata.component";
+import { filterPaginationData } from "../Common/filter-pagination-data";
+import LoadMore from "../Components/load-more.component";
 
 const HomePage = () => {
-  let [blogs, setBlogs] = useState([]);
+
+  let [blogs, setBlogs] = useState(null);
+  
   let [trend, setTrend] = useState(null);
+  
   let [pageState, setPageState] = useState("home");
 
   let categories = [
@@ -27,24 +32,36 @@ const HomePage = () => {
     "nature",
   ];
 
-  const fetchLatestBlog = () => {
+  const fetchLatestBlog = ({ page = 1 }) => {
     axios
-      .get(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/latest-blogs`)
-      .then(({ data }) => {
-        //console.log(data.blogs)
-        setBlogs(data.blogs);
+      .post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/latest-blogs`, {  page })
+      .then(  async ({ data }) => {
+
+        let formateData = await filterPaginationData({ 
+          state: blogs,
+          data: data.blogs,
+          page,
+          counteRoute: "/all-latest-blog-count"
+         })
+        setBlogs(formateData);
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  const FetchBlogByCategory = () => {
+  const FetchBlogByCategory = ( { page = 1 } ) => {
     axios
-      .post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/search-blogs`,{tag:pageState})
-      .then(({ data }) => {
-        //console.log(data.blogs)
-        setBlogs(data.blogs);
+      .post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/search-blogs`,{tag:pageState , page})
+      .then( async ({ data }) => {
+        let formateData = await filterPaginationData({ 
+          state: blogs,
+          data: data.blogs,
+          page,
+          counteRoute: "/search-blog-count",
+          data_to_send:{tag:pageState}
+         })
+        setBlogs(formateData);
       })
       .catch((error) => {
         console.log(error);
@@ -80,10 +97,10 @@ const HomePage = () => {
     ActiveTab.current.click();
 
     if (pageState == "home") {
-      fetchLatestBlog();
+      fetchLatestBlog( {page:1} );
     }
     else{
-      FetchBlogByCategory()
+      FetchBlogByCategory( {page:1} )
     }
 
     if (TrendingBlogs) {
@@ -105,9 +122,9 @@ const HomePage = () => {
                 <Loader />
               ) : 
             
-              blogs.length ? 
+              blogs.results.length ? 
               (
-                  blogs.map((blog,i) => {
+                  blogs.results.map((blog,i) => {
                     return (
                       <AnimationWrapper transition={{duration:1,delay: i*0.1}} key={i}>
                         <BlogPost
@@ -123,7 +140,9 @@ const HomePage = () => {
                 <>
                 <NoDataMessage message={"No Blogs Published"} />
                 </>
-              )}
+              )
+              }
+              <LoadMore  state={blogs} fetchDataFun={ ( pageState == "home" ? fetchLatestBlog : FetchBlogByCategory) }/>
             </>
 
             <>
