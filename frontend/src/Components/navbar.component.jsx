@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import logo from "../images/logo.png";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
 import UserNavigationPanel from "./user-navigation.component";
 
@@ -10,6 +10,8 @@ const Navbar = () => {
 
   //navigation panel
   const [userNav, setUserNav] = useState(false);
+
+  let navigate = useNavigate();
 
   //fetching global user data from context
   const {
@@ -25,6 +27,15 @@ const Navbar = () => {
   const handelBlur = () => {
     setTimeout(() => setUserNav(false), 200);
   };
+
+  //search function
+  const SearchHandel = (e) => {
+    let query = e.target.value;
+
+    if(e.keyCode == 13 && query.length){
+      navigate(`/search/${query}`)
+    }
+  }
 
   return (
     <>
@@ -47,6 +58,7 @@ const Navbar = () => {
             type="text"
             placeholder="Serach"
             className="w-full md:w-auto bg-grey p-4 pl-6 pr-[12%] md:pr-6 rounded-full placeholder:text-dark-grey py-4 px-[5vw] md:pl-12"
+            onKeyDown={SearchHandel}
           />
           <i className="fi fi-rr-search absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2 text-xl text-dark-grey"></i>
         </div>

@@ -1,5 +1,5 @@
 import express from "express"
-import { GoogleAuth, TrendingBlogs, allLatestBlogsCount, authSignin, authSignup, createBlog, imgURLUpload, latestBlog, searchBlogCount, searchBlogs } from "../Controller/authController.js";
+import { GoogleAuth, TrendingBlogs, allLatestBlogsCount, authSignin, authSignup, createBlog, imgURLUpload, latestBlog, searchBlogCount, searchBlogs, searchUser } from "../Controller/authController.js";
 import { verifyToken } from "../MiddleWare/verifyToken.js";
 const router = express.Router();
 
@@ -33,6 +33,9 @@ router.route("/all-latest-blog-count").post(allLatestBlogsCount);
 
 // search-blog-count
 router.route("/search-blog-count").post(searchBlogCount);
+
+//search-users
+router.route("/search-users").post(searchUser)
 
 
 export default router;  
