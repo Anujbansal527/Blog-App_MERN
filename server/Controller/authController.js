@@ -159,14 +159,12 @@ export const GoogleAuth = async (req, res) => {
   try {
     let { access_token } = req.body;
 
-
-
     getAuth()
       .verifyIdToken(access_token)
       .then(async (decodedUser) => {
         let { email, name, picture } = decodedUser;
 
-       // console.log(decodedUser);
+        // console.log(decodedUser);
 
         picture = picture.replace("s96-c", "s384-c");
 
@@ -314,21 +312,68 @@ export const createBlog = (req, res) => {
     });
 };
 
-//latest-blog 
-export const latestBlog = (req,res) => {
+//latest-blog
+export const latestBlog = (req, res) => {
+  let maxLimit = 5;
 
-  let maxLimit=5
+  Blog.find({ draft: false })
+    .populate(
+      "author",
+      " personal_info.profile_img personal_info.username personal_info.fullname -_id"
+    )
+    .sort({ publishedAt: -1 })
+    .select("blog_id title des banner activity tags publishedAt -_id")
+    .limit(maxLimit)
+    .then((blogs) => {
+      return res.status(200).json({ blogs });
+    })
+    .catch((error) => {
+      return res.status(500).json({ error: error.message });
+    });
+};
 
-  Blog.find({draft:false})
-  .populate("author"," personal_info.profile_img personal_info.username personal_info.fullname -_id")
-  .sort( {"publishedAt": -1} )
-  .select("blog_id title des banner activity tags publishedAt -_id")
-  .limit(maxLimit)
-  .then(blogs => {
-    return res.status(200).json({blogs});
-  })
-  .catch(error =>{
-    return res.status(500).json({error : error.message})
-  })
-}
+//trending blog
+export const TrendingBlogs = (req, res) => {
+  Blog.find({ draft: false })
+    .populate(
+      "author",
+      " personal_info.profile_img personal_info.username personal_info.fullname -_id"
+    )
+    .sort({
+      "activity.total_read": -1,
+      "activity.total_likes": -1,
+      publishedAt: -1,
+    })
+    .select("blog_id title publishedAt -_id")
+    .limit(5)
+    .then((blogs) => {
+      return res.status(200).json({ blogs });
+    })
+    .catch((error) => {
+      return res.status(500).json({ error: error.message });
+    });
+};
 
+//search-blogs
+export const searchBlogs = (req, res) => {
+  let { tag } = req.body;
+
+  let findQuery = { tags: tag, draft: false };
+
+  let maxLimit = 5;
+
+  Blog.find(findQuery)
+    .populate(
+      "author",
+      " personal_info.profile_img personal_info.username personal_info.fullname -_id"
+    )
+    .sort({ publishedAt: -1 })
+    .select("blog_id title des banner activity tags publishedAt -_id")
+    .limit(maxLimit)
+    .then((blogs) => {
+      return res.status(200).json({ blogs });
+    })
+    .catch((error) => {
+      return res.status(500).json({ error: error.message });
+    });
+};
