@@ -6,6 +6,7 @@ import { lookInSession } from "./Common/session";
 import Editor from "./Pages/editor.pages";
 import HomePage from "./Pages/home.page";
 import SearchPage from "./Pages/search.page";
+import PageNotFound from "./Pages/404.page";
 
 
 //creating context 
@@ -35,6 +36,7 @@ const App = () => {
                 <Route path="singin" element={<UserAuthForm type ="sign-in"/>} />
                 <Route path="singup" element={<UserAuthForm type ="sign-up"/>} />
                 <Route path="search/:query" element={ <SearchPage /> }/>
+                <Route path="*" element={<PageNotFound/>}/>
             </Route> 
         </Routes>
        </UserContext.Provider>
