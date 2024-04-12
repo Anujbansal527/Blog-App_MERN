@@ -6,14 +6,17 @@ import { lookInSession } from "./Common/session";
 import Editor from "./Pages/editor.pages";
 import HomePage from "./Pages/home.page";
 import SearchPage from "./Pages/search.page";
+import PageNotFound from "./Pages/404.page";
+import ProfilePage from "./Pages/profile.page";
+import BlogPage from "./Pages/blog.page";
 
 
 //creating context 
 export const UserContext = createContext({})
 
 const App = () => {
-
-    //state to save session details 
+`
+    //state to save session details `
     const [userAuth,setUserAuth] = useState({});
 
     useEffect(()=>{
@@ -29,12 +32,16 @@ const App = () => {
          <Routes>
             
             <Route path="/editor" element={<Editor/>}/>
+            <Route path="/editor/:blog_id" element={<Editor/>}/>
 
             <Route path="/" element={<Navbar />}>
                 <Route index element={<HomePage/>}/>
                 <Route path="singin" element={<UserAuthForm type ="sign-in"/>} />
                 <Route path="singup" element={<UserAuthForm type ="sign-up"/>} />
                 <Route path="search/:query" element={ <SearchPage /> }/>
+                <Route path="user/:id" element={<ProfilePage/>}/>
+                <Route path="blog/:blog_id" element={<BlogPage/>} />
+                <Route path="*" element={<PageNotFound/>}/>
             </Route> 
         </Routes>
        </UserContext.Provider>
