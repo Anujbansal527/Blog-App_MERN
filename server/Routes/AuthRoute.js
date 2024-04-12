@@ -1,5 +1,5 @@
 import express from "express"
-import { GoogleAuth, TrendingBlogs, allLatestBlogsCount, authSignin, authSignup, createBlog, getBlogs, imgURLUpload, latestBlog, searchBlogCount, searchBlogs, searchUser, userProfile } from "../Controller/authController.js";
+import { GoogleAuth, TrendingBlogs, allLatestBlogsCount, authSignin, authSignup, createBlog, getBlogs, imgURLUpload, isLiked, latestBlog, likeBlog, searchBlogCount, searchBlogs, searchUser, userProfile } from "../Controller/authController.js";
 import { verifyToken } from "../MiddleWare/verifyToken.js";
 const router = express.Router();
 
@@ -43,5 +43,10 @@ router.route("/get-profile").post(userProfile);
 //get-blog
 router.route("/get-blog").post(getBlogs);
 
+//like route
+router.route("/like-blog").post(verifyToken,likeBlog);
+
+//isliked
+router.route("/isliked").post(verifyToken,isLiked)
 
 export default router;  
