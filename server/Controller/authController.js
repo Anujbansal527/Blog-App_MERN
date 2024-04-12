@@ -7,6 +7,7 @@ import { getAuth } from "firebase-admin/auth";
 
 import User from "../Models/User.js";
 import Blog from "../Models/Blog.js";
+import Notifications from "../Models/Notifications.js";
 
 import { genrateUploadURL } from "../Configs/AWS.js";
 
@@ -511,6 +512,55 @@ export const getBlogs = (req, res) => {
     .catch((error) => {
       return res.status(500).json({ error: error.message });
     });
-
-  
 };
+
+//like-blog
+export const likeBlog = (req,res) => {
+
+  let user_id = req.user;
+
+  let { _id , isLike} = req.body;
+
+  let incrementVal = !isLike ? 1 : -1 ;
+
+  Blog.findOneAndUpdate({_id},{$inc : { "activity.total_likes": incrementVal}})
+  .then((blog)=>{
+      
+    if(!isLike){
+      let like = new Notifications({
+        type:"like",
+        blog: _id,
+        notification_for: blog.author,
+        user: user_id
+      })
+
+      like.save().then((notification)=>{
+        return res.status(200).json({liked_by_user:true})
+      })
+    }
+    else{
+      Notifications.findOneAndDelete({user:user_id , blog: _id , type: "like" })
+      .then(data=>{
+        return res.status(200).json({liked_by_user:false})
+      })
+      .catch(error => {
+        return res.status(500).json({error:error.message})
+      })
+    }
+  })
+
+}
+
+//isliked
+export const isLiked = (req,res) =>{
+  let user_id = req.user;
+  let { _id } = req.body;
+
+  Notifications.exists({ user: user_id , type : "like" , blog: _id})
+  .then(result =>{
+    return res.status(200).json({result})
+  })
+  .catch(error=>{
+    return res.status(500).json({error:error.message})
+  })
+}
