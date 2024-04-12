@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import logo from "../images/logo.png";
 import AnimationWrapper from "../Common/page-animation";
 import Banner from "../images/banner.png";
@@ -28,14 +28,17 @@ const BlogEditor = () => {
     userAuth: { access_token },
   } = useContext(UserContext);
 
+  let { blog_id } =  useParams();
+
   let navigate = useNavigate();
 
   useEffect(() => {
     if (!textEditor.isReady) {
+      console.log(content)
       setTextEditor(
         new EditorJs({
           holderId: "textEditor",
-          data: content,
+          data: Array.isArray(content) ? content[0] : content ,
           tools: tools,
           placeholder: "Let's create a beautiful story...",
         })
@@ -129,7 +132,11 @@ const BlogEditor = () => {
     e.target.classList.add("disable");
 
     if (textEditor.isReady) {
-      textEditor.save().then((content) => {
+      
+      textEditor
+      .save()
+      .then((content) => {
+        
         let blogObj = {
           title,
           banner,
@@ -142,7 +149,7 @@ const BlogEditor = () => {
         axios
           .post(
             `${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/create-blog`,
-            blogObj,
+            {...blogObj, id:blog_id } ,
             { headers: { Authorization: `Bearer ${access_token}` } }
           )
           .then(() => {

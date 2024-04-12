@@ -238,9 +238,10 @@ export const imgURLUpload = (req, res) => {
 
 //create blog
 export const createBlog = (req, res) => {
+
   let authorId = req.user;
 
-  let { title, des, banner, tags, content, draft } = req.body;
+  let { title, des, banner, tags, content, draft,id } = req.body;
 
   if (!draft) {
     if (!des.length) {
@@ -268,58 +269,66 @@ export const createBlog = (req, res) => {
 
   tags = tags.map((tag) => tag.toLowerCase());
 
-  let blog_id =
-    title
-      .replace(/[^a-zA-Z0-9]/g, " ")
-      .replace(/\s+/g, "-")
-      .trim() + nanoid();
+  let blog_id = id || title.replace(/[^a-zA-Z0-9]/g, " ").replace(/\s+/g, "-").trim() + nanoid();
 
-  let blog = new Blog({
-    title,
-    des,
-    banner,
-    content,
-    tags,
-    author: authorId,
-    blog_id,
-    draft: Boolean(draft),
-  });
-
-  blog
-    .save()
-    .then((blog) => {
-      let incVal = draft ? 0 : 1;
-
-      User.findOneAndUpdate(
-        { _id: authorId },
-        {
-          $inc: { "account_info.total_posts": incVal },
-          $push: { blogs: blog._id },
-        }
-      )
-        .then((user) => {
-          return res.status(201).json({ id: blog.blog_id });
-        })
-        .catch((err) => {
-          return res
-            .status(500)
-            .json({ error: "Server Error, faild to update post number" });
-        });
-    })
-    .catch((e) => {
-      console.log("Error in saving the blog", e);
-      return res
-        .status(500)
-        .json({ error: "Server Error, failed to save blog" });
+  if(id){
+      Blog.findOneAndUpdate({ blog_id },{ title, des , banner,content ,tags, draft: draft ?  draft : false })
+      .then(()=> {
+        return res.status(200).json({id:blog_id}) 
+      })
+      .catch(error => {
+        return res.status(500).json({error:error.message})
+      })
+  }
+  else{
+    let blog = new Blog({
+      title,
+      des,
+      banner,
+      content,
+      tags,
+      author: authorId,
+      blog_id,
+      draft: Boolean(draft),
     });
+  
+    blog
+      .save()
+      .then((blog) => {
+        let incVal = draft ? 0 : 1;
+  
+        User.findOneAndUpdate(
+          { _id: authorId },
+          {
+            $inc: { "account_info.total_posts": incVal },
+            $push: { blogs: blog._id },
+          }
+        )
+          .then((user) => {
+            return res.status(201).json({ id: blog.blog_id });
+          })
+          .catch((err) => {
+            return res
+              .status(500)
+              .json({ error: "Server Error, faild to update post number" });
+          });
+      })
+      .catch((e) => {
+        console.log("Error in saving the blog", e);
+        return res
+          .status(500)
+          .json({ error: "Server Error, failed to save blog" });
+      });
+  }
+
+  
 };
 
 ///home page
 
 //latest-blog
 export const latestBlog = (req, res) => {
-
-  let {page} = req.body;
+  let { page } = req.body;
 
   let maxLimit = 5;
 
@@ -364,20 +373,20 @@ export const TrendingBlogs = (req, res) => {
 
 //search-blogs
 export const searchBlogs = (req, res) => {
-  
-  let { tag, page , query } = req.body;
+  let { tag, page, author, query, limit, eliminate_blog } = req.body;
 
   let findQuery;
 
-  if(tag) {
-    findQuery = { tags: tag, draft: false };
-  }
-  else if(query)
-  {
-    findQuery = { draft:false , title:new RegExp(query,'i') }
+  if (tag) {
+    //"ne" stand for not equaL TO
+    findQuery = { tags: tag, draft: false, blog_id: { $ne: eliminate_blog } };
+  } else if (query) {
+    findQuery = { draft: false, title: new RegExp(query, "i") };
+  } else if (author) {
+    findQuery = { author, draft: false };
   }
 
-  let maxLimit = 5;
+  let maxLimit = limit ? limit : 5;
 
   Blog.find(findQuery)
     .populate(
@@ -386,7 +395,7 @@ export const searchBlogs = (req, res) => {
     )
     .sort({ publishedAt: -1 })
     .select("blog_id title des banner activity tags publishedAt -_id")
-    .skip((page-1)*maxLimit)
+    .skip((page - 1) * maxLimit)
     .limit(maxLimit)
     .then((blogs) => {
       return res.status(200).json({ blogs });
@@ -396,64 +405,112 @@ export const searchBlogs = (req, res) => {
     });
 };
 
-
 //pagination
 
 //all-latest-blog-count
-export const allLatestBlogsCount = (req,res) => {
-
+export const allLatestBlogsCount = (req, res) => {
   Blog.countDocuments({ draft: false })
-  .then(count => {
-    return res.status(200).json({totalDocs:count})
-  })
-  .catch(error=>{
-    console.log(error.message)
-    return res.status(500).json({error:error.message})
-  })
-
-} 
-
+    .then((count) => {
+      return res.status(200).json({ totalDocs: count });
+    })
+    .catch((error) => {
+      console.log(error.message);
+      return res.status(500).json({ error: error.message });
+    });
+};
 
 //search-blog-count
-export const searchBlogCount = (req,res) => {
-  
-  let {tag , query } = req.body
+export const searchBlogCount = (req, res) => {
+  let { tag, author, query } = req.body;
 
-  let findQuery
+  let findQuery;
 
-  if(tag) {
+  if (tag) {
     findQuery = { tags: tag, draft: false };
-  }
-  else if(query)
-  {
-    findQuery = { draft:false , title:new RegExp(query,'i') }
+  } else if (query) {
+    findQuery = { draft: false, title: new RegExp(query, "i") };
+  } else if (author) {
+    findQuery = { author, draft: false };
   }
 
   Blog.countDocuments(findQuery)
-  .then(count => {
-    return res.status(200).json({totalDocs:count})
-  })
-  .catch(error=>{
-    console.log(error.message)
-    return res.status(500).json({error:"No result found"});
-  })
-}
-
+    .then((count) => {
+      return res.status(200).json({ totalDocs: count });
+    })
+    .catch((error) => {
+      console.log(error.message);
+      return res.status(500).json({ error: "No result found" });
+    });
+};
 
 //search-users
-export const searchUser = (req,res) => {
-  let {query} = req.body;
+export const searchUser = (req, res) => {
+  let { query } = req.body;
 
-  User.find({"personal_info.username":new RegExp(query,"i")})
-  .limit(50)
-  .select("personal_info.fullname personal_info.username personal_info.profile_img -_id")
-  .then((users) => {
-    console.log(users);
-    return res.status(200).json({users})
-  })
-  .catch(error => {
-    console.log(error)
-    return res.status(500).json({error:error.message})
-  } )
-}
+  User.find({ "personal_info.username": new RegExp(query, "i") })
+    .limit(50)
+    .select(
+      "personal_info.fullname personal_info.username personal_info.profile_img -_id"
+    )
+    .then((users) => {
+      console.log(users);
+      return res.status(200).json({ users });
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.status(500).json({ error: error.message });
+    });
+};
 
+//user profile
+export const userProfile = (req, res) => {
+  let { username } = req.body;
+
+  User.findOne({ "personal_info.username": username })
+    .select("-personal_info.password -google_auth -updateAt -blogs")
+    .then((user) => {
+      return res.status(200).json(user);
+    })
+    .catch((error) => {
+      console.log(error);
+      return res.status(500).json({ error: error.message });
+    });
+};
+
+//get-blog
+export const getBlogs = (req, res) => {
+  let { blog_id, draft, mode } = req.body;
+
+  let incrementVal = mode != "edit" ? 1 : 0;
+
+  Blog.findOneAndUpdate(
+    { blog_id },
+    { $inc: { "activity.total-reads": incrementVal } }
+  )
+    .populate(
+      "author",
+      "personal_info.fullname personal_info.username personal_info.profile_img"
+    )
+    .select("title des content banner activity publishedAt blog_id tags")
+    .then((blog) => {
+      User.findOneAndUpdate(
+        { "personal_info.username": blog.author.personal_info.username },
+        { $inc: { "account_info.total_reads": incrementVal } }
+      )
+      .catch((error) => {
+        return res.status(500).json({ error: error.message });
+      });
+
+      if(blog.draft && !draft){
+          return res.status(500).json({error:"You Can Not Access Draft Blog"})
+      }
+
+      return res.status(200).json({ blog });
+    })
+
+    .catch((error) => {
+      return res.status(500).json({ error: error.message });
+    });
+
+  
+};
