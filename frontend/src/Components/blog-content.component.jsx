@@ -1,6 +1,5 @@
 
 
-import { Quote } from '@editorjs/quote';
 import React from 'react'
 
 const Img = ({url,caption}) => {
