@@ -9,7 +9,7 @@ import axios from 'axios'
 
 const BlogIntraction = () => {
 
-    let {blog, blog:{_id,title, blog_id,activity,activity:{ total_likes,total_comments},author:{personal_info:{username:author_username}}},setBlog,isLike,setIsLike} = useContext(BlogContext)
+    let {blog, blog:{_id,title, blog_id,activity,activity:{ total_likes,total_comments},author:{personal_info:{username:author_username}}},setBlog,isLike,setIsLike,setCmntWrapper} = useContext(BlogContext)
 
     let { userAuth:{username,access_token} } = useContext(UserContext)
 
@@ -76,8 +76,9 @@ const BlogIntraction = () => {
                     <p className='text-xl text-dark-grey'>{total_likes}</p>
                 
 
-                
-                    <button className='w-10 h-10 rounded-full flex items-center justify-center bg-grey/80'>
+                    <button 
+                    onClick={()=>setCmntWrapper(pre => !pre)}
+                    className='w-10 h-10 rounded-full flex items-center justify-center bg-grey/80'>
                         <i className='fi fi-rr-comment-dots'></i>
                     </button>
                     <p className='text-xl text-dark-grey'>{total_comments}</p>

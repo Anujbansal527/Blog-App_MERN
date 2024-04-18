@@ -9,6 +9,7 @@ import { getDay } from '../Common/date';
 import BlogIntraction from '../Components/blog-interaction.component';
 import BlogPost from '../Components/blog-post.component';
 import BlogContent from '../Components/blog-content.component';
+import CommentContainer, { fetchComment } from '../Components/comments.component';
 
 export const blogStructure = {
     title:'',
@@ -32,15 +33,22 @@ const BlogPage = () => {
 
     const [loading,setLoading] = useState(true);
 
-    const [isLike,setIsLike] = useState(false)
+    const [isLike,setIsLike] = useState(false);
+
+    const [cmntWrapper,setCmntWrapper] = useState(true);
+
+            //totalParentCommentsLoaded
+    const [totalCommnetsLoaded,setTotalCommentsLoaded] = useState(0);
 
     let { title,content,banner,author:{personal_info:{ fullname,username:author_username,profile_img}},publishedAt} = blog;
 
     const fetchBlog = () => {
         axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/get-blog`,
         { blog_id })
-        .then(({data : {blog}}) => {
+        .then(async({data : {blog}}) => {
             
+            blog.comments = await fetchComment({blog_id:blog._id , setParentCountFun: setTotalCommentsLoaded })
+
             setBlog(blog)
 
             axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/search-blogs`,
@@ -65,6 +73,9 @@ const BlogPage = () => {
     const resetState = () => {
         setBlog(blogStructure)
         setSimilarBlogs(null)
+        setIsLike(false)
+        setCmntWrapper(false)
+        setTotalCommentsLoaded(0)
         setLoading(true)
     }
 
@@ -73,7 +84,9 @@ const BlogPage = () => {
     {
         loading ? <Loader/>
         :
-        <BlogContext.Provider value={{blog,setBlog,isLike,setIsLike}} >
+        <BlogContext.Provider value={{blog,setBlog,isLike,setIsLike,cmntWrapper,setCmntWrapper,totalCommnetsLoaded,setTotalCommentsLoaded}} >
+
+        <CommentContainer/>
 
         <div className='max-w-[900px] center py-10 max-lg:px-[5vw]'>
             <img src={banner} className='aspect-video' />
