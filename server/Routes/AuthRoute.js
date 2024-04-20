@@ -1,5 +1,5 @@
 import express from "express"
-import { AddComment, DeleteComment, GetReplies, GoogleAuth, TrendingBlogs, allLatestBlogsCount, authSignin, authSignup, createBlog, getBlogComment, getBlogs, imgURLUpload, isLiked, latestBlog, likeBlog, searchBlogCount, searchBlogs, searchUser, userProfile } from "../Controller/authController.js";
+import { AddComment, DeleteComment, GetReplies, GoogleAuth, TrendingBlogs, UpdateProfile, allLatestBlogsCount, authSignin, authSignup, changePassword, createBlog, getBlogComment, getBlogs, imgURLUpload, isLiked, latestBlog, likeBlog, searchBlogCount, searchBlogs, searchUser, updateProfileImg, userProfile } from "../Controller/authController.js";
 import { verifyToken } from "../MiddleWare/verifyToken.js";
 const router = express.Router();
 
@@ -60,5 +60,14 @@ router.route("/get-replies").post(GetReplies)
 
 //delete-comment
 router.route("/delete-comment").post(verifyToken,DeleteComment)
+
+//change-password
+router.route("/change-password").post(verifyToken,changePassword)
+
+//update-profile-img
+router.route("/update-profile-img").post(verifyToken,updateProfileImg)
+
+//update-profile
+router.route("/update-profile").post(verifyToken,UpdateProfile)
 
 export default router;  

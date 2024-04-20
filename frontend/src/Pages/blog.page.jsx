@@ -38,7 +38,7 @@ const BlogPage = () => {
     const [cmntWrapper,setCmntWrapper] = useState(true);
 
             //totalParentCommentsLoaded
-    const [totalCommnetsLoaded,setTotalCommentsLoaded] = useState(0);
+    const [totalParentCommentsLoaded,setTotalCommentsLoaded] = useState(0);
 
     let { title,content,banner,author:{personal_info:{ fullname,username:author_username,profile_img}},publishedAt} = blog;
 
@@ -84,7 +84,7 @@ const BlogPage = () => {
     {
         loading ? <Loader/>
         :
-        <BlogContext.Provider value={{blog,setBlog,isLike,setIsLike,cmntWrapper,setCmntWrapper,totalCommnetsLoaded,setTotalCommentsLoaded}} >
+        <BlogContext.Provider value={{blog,setBlog,isLike,setIsLike,cmntWrapper,setCmntWrapper,totalParentCommentsLoaded,setTotalCommentsLoaded}} >
 
         <CommentContainer/>
 

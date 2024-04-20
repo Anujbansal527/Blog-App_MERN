@@ -1,6 +1,5 @@
 {
-  "name": "medium-clone",
-  "private": true,
+  "name": "MERN-Blog",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
