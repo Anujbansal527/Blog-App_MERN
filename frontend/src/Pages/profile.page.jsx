@@ -46,7 +46,6 @@ const ProfilePage = () => {
   } = profile;
 
   let { userAuth : {username} } = useContext(UserContext);
-console.log(username)
   const fetchUserProfile = () => {
     axios
       .post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/get-profile`, {

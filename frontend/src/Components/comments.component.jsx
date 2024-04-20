@@ -35,12 +35,12 @@ export const fetchComment = async ({ skip=0 , blog_id, setParentCountFun , comme
 
 const CommentContainer = () => {
   
-    let { blog ,blog:{_id,title,comments: {results:commentsArr}, activity : {total_parent_comments}}, cmntWrapper,setCmntWrapper,totalCommnetsLoaded,setTotalCommentsLoaded,setBlog } = useContext(BlogContext)
+    let { blog ,blog:{_id,title,comments: {results:commentsArr}, activity : {total_parent_comments}}, cmntWrapper,setCmntWrapper,totalParentCommentsLoaded,setTotalCommentsLoaded,setBlog } = useContext(BlogContext)
     
     const LoadMore = async() => {
 
         let newCommentArr = await fetchComment
-        ({ skip:totalCommnetsLoaded , blog_id: _id,setParentCountFun:setTotalCommentsLoaded,comment_array:commentsArr })
+        ({ skip:totalParentCommentsLoaded , blog_id: _id,setParentCountFun:setTotalCommentsLoaded,comment_array:commentsArr })
     
         setBlog({...blog,  comments:newCommentArr});
     }
@@ -75,7 +75,7 @@ const CommentContainer = () => {
         }
 
         {
-            total_parent_comments > totalCommnetsLoaded ? 
+            total_parent_comments > totalParentCommentsLoaded ? 
             <button 
             onClick={LoadMore}
             className='text-dark-grey p-2 px-3 hover:bg-grey/30 rounded-md flex items-center gap-2'>

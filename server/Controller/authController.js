@@ -598,7 +598,7 @@ export const AddComment = (req, res) => {
         $push: { comment: commentFile._id },
         $inc: {
           "activity.total_comments": 1,
-          "activity.total_parent_comment": replying_To ? 0 : 1,
+          "activity.total_parent_comments": replying_To ? 0 : 1,
         },
       }
     ).then((blog) => {
@@ -672,7 +672,7 @@ export const GetReplies = (req, res) => {
   Comments.findOne({ _id })
     .populate({
       path: "children",
-      option: {
+      options: {
         limit: maxLimit,
         skip: skip,
         sort: { commentedAt: -1 },
@@ -685,7 +685,7 @@ export const GetReplies = (req, res) => {
       select: "-blog_id -updatedAt",
     })
     .select("children")
-    .then((doc) => {
+    .then(doc => {
       return res.status(200).json({ replies: doc.children });
     })
     .catch((error) => {
@@ -745,3 +745,111 @@ export const DeleteComment = (req, res) => {
     }
   });
 };
+ 
+//change-password
+export const changePassword = (req,res) => {
+
+  let { currentPassword,newPassword} = req.body;
+
+  if(!passwordRegex.test(currentPassword) || !passwordRegex.test(newPassword)){
+    return res.status(403).json({error :"Password Should be 6 to 20 Character long with a numeric , ! lowercase , 1 uppercase letter"})
+}
+
+User.findOne({_id:req.user})
+.then((user)=> {
+  if(user.google_auth){
+    return res.status(403).json({error:"You Can't change account's password because you logged in through google "})
+  }
+
+  bcrypt.compare(currentPassword , user.personal_info.password, (err,result) => {
+    if(err){
+       return res.status(500).json({error:"Some Error Occured While Changing the Password ,Please try again later "})
+    }
+    if(!result){
+      return res.status(403).json({error:"Invalid Current Password!"});
+    }
+
+    bcrypt.hash(newPassword,10).then((err,hash) => {
+      User.findOneAndUpdate({_id:req.user},{"personal_info.password":hash})
+      .then((u)=>{
+        return res.status(200).json({status:"Password Changed"})
+      })
+      .catch(err => {
+        return res.status(500).json({error:"Some error occured while saving new password , please try again latter"})
+      })
+    })
+  })
+})
+.catch(err => {
+  console.log(err)
+  return res.status(500).json({error:"Server Error! Try Again Later."})
+})
+}
+
+
+//update-profile-img
+export const updateProfileImg = (req,res) => {
+  
+  let {url} = req.body;
+
+  User.findOneAndUpdate({id:req.user} , {"personal_info.profile_img":url})
+  .then(() => {
+    return res.status(200).json({profile_img:url})
+  })
+  .catch(error => {
+    return res.status(500).json({error:error.message})
+  })
+}
+
+//update-profile
+export const UpdateProfile = (req,res) => {
+
+  let {username,bio,social_links} = req.body;
+
+  let bioLimit = 150;
+
+  if(username.length < 3){
+    return res.status(403).json({error:"Username Should Be Atleast 3 Letters long"})
+  }
+
+  if(bio.length > bioLimit){
+    return res.status(403).json({error:`Bio Should Not Be More Than ${bioLimit} characters`})
+  }
+
+  let socialLinkArr = Object.keys(social_links);
+
+  try{
+    
+    for(let i=0 ;i<socialLinkArr.length;i++){
+      
+      if(social_links[socialLinkArr[i]].length){
+        
+        let hostname = new URL(social_links[socialLinkArr[i]]).hostname;
+        
+        if(!hostname.includes(`${socialLinkArr[i]}.com`) && socialLinkArr[i] != 'website'){
+          return res.status(403).json({error:`${socialLinkArr[i]} link is invalid. You Must enter a full link`})
+        }
+      }
+    }
+  }
+  catch(error){
+    return res.status(500).json({error:"You Must Provide Full social links with http(s) included"})
+  }
+
+  let UpdateObj = {
+    "personal_info.username":username,
+    "personal_info.bio":bio,
+    social_links
+  }
+
+  User.findOneAndUpdate({ _id : req.user},UpdateObj,{runValidators:true})
+  .then(()=>{
+    return res.status(200).json({username})  
+  })
+  .catch(err=>{
+    if(err.code == 11000){
+      return res.status(409).json({error:"Username Is Already Taken"})
+    }
+    return res.status(500).json({error: err.message});
+  })
+}

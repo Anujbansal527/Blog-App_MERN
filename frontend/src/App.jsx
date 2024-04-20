@@ -9,6 +9,9 @@ import SearchPage from "./Pages/search.page";
 import PageNotFound from "./Pages/404.page";
 import ProfilePage from "./Pages/profile.page";
 import BlogPage from "./Pages/blog.page";
+import SideNavBar from "./Components/sidenavbar.component";
+import EditProfile from "./Pages/edit-profile.page";
+import ChangePassword from "./Pages/change-password.page";
 
 
 //creating context 
@@ -36,6 +39,10 @@ const App = () => {
 
             <Route path="/" element={<Navbar />}>
                 <Route index element={<HomePage/>}/>
+                <Route path="settings" element={<SideNavBar/>}>
+                    <Route path="edit-profile" element={<EditProfile/>}/>
+                    <Route path="change-password" element={<ChangePassword/>}/>
+                </Route>
                 <Route path="singin" element={<UserAuthForm type ="sign-in"/>} />
                 <Route path="singup" element={<UserAuthForm type ="sign-up"/>} />
                 <Route path="search/:query" element={ <SearchPage /> }/>
