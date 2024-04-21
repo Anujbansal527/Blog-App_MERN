@@ -50,7 +50,7 @@ const Notification = () => {
     if (access_token) {
       fetchNotifications({ page: 1 });
     }
-  }, [access_token]);
+  }, [access_token,filter]);
 
   const FilterHandel = (e) => {
     let btn = e.target;
