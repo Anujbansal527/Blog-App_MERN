@@ -571,7 +571,7 @@ export const isLiked = (req, res) => {
 export const AddComment = (req, res) => {
   let user_id = req.user;
 
-  let { _id, comment, blog_author, replying_To } = req.body;
+  let { _id, comment, blog_author, replying_To,notification_id } = req.body;
 
   if (!comment.length) {
     return res.status(403), json({ error: "Please enter a valid comment." });
@@ -622,6 +622,12 @@ export const AddComment = (req, res) => {
       ).then((replyingToCommentDoc) => {
         notificationObj.notification_for = replyingToCommentDoc.commented_by;
       });
+
+      if(notification_id){
+        Notifications.findOneAndUpdate({_id:notification_id},{reply: commentFile._id})
+        .then(notification => {console.log("Notification updates")})
+      }
+
     }
 
     new Notifications(notificationObj)
@@ -711,7 +717,7 @@ const deleteComments = (_id) => {
     Notifications.findOneAndDelete({comment:_id})
     .then(notification => console.log("comment notification deleted"))
 
-    Notifications.findOneAndDelete({reply: _id})
+    Notifications.findOneAndUpdate({reply: _id},{$unset:{ reply: 1 }})
     .then(notification => console.log("reply notification deleted"))
 
     Blog.findOneAndUpdate({_id:comment.blog_id},{$pull : {comment:_id},$inc: { "activity.total_comments":-1}, "activity.total_parent_comments": comment.parent ? 0 : -1})
@@ -852,4 +858,96 @@ export const UpdateProfile = (req,res) => {
     }
     return res.status(500).json({error: err.message});
   })
+}
+
+//new-notification
+export const newNotification = (req,res) => {
+
+  let user_id  = req.user;
+
+  Notifications.exists({notification_for : user_id , seen:false , user: {$ne:user_id}})
+  .then(result => {
+    if(result){
+      return res.status(200).json({new_notification_available:true})
+    }
+    else{
+      return res.status(200).json({new_notification_available:false})
+    }
+  })
+  .catch(err=>{
+    console.log(err.message)
+    return res.status(500).json({error:err.message})
+  })
+}
+
+//notifications
+export const notifications = (req,res) =>{
+
+  let user_id = req.user;
+
+  let {page , filter , deleteDocCount} = req.body;
+
+  let maxLimit = 10;
+
+  let findQuery = { notification_for:user_id , user:{$ne:user_id}}
+
+  let skipDoc = (page-1)*maxLimit;
+
+  if(filter != 'all'){
+    findQuery.type = filter
+  }
+
+  if(deleteDocCount){
+    skipDoc -= deleteDocCount
+  }
+
+  Notifications.find(findQuery)
+  .skip(skipDoc)
+  .limit(maxLimit)
+  .populate("blog"," title blog_id")
+  .populate("user","personal_info.fullname  personal_info.username personal_info.profile_img")
+  .populate("comment","comment")
+  .populate("replied_on_comment","comment")
+  .populate("reply","comment")
+  .sort({createdAt: -1})
+  .select("createdAt type seen reply")
+  .then(notifications => {
+
+    Notifications.updateMany(findQuery,{seen:true})
+    .skip()
+    .limit(maxLimit)
+    .then(() => {
+      console.log('notification seen')
+    })
+
+    return res.status(200).json({notifications})
+  })
+  .catch(error => {
+    console.log(error.message)
+    return res.status(500).json({error:error.message})
+  })
+}
+
+
+//all-notification-count
+export const allNotificationCount = (req,res) => {
+  
+  let user_id = req.user
+
+  let{filter} =req.body
+  
+  let findQuery = {notification_for:user_id , user:{$ne:user_id}}
+
+  if(filter != 'all'){
+    findQuery.type = filter;
+  }
+
+  Notifications.countDocuments(findQuery)
+  .then(count => {
+    return res.status(200).json({totalDocs:count})
+  })
+  .catch(error => {
+    return res.status(500).json({error:error.message})
+  })
+
 }
