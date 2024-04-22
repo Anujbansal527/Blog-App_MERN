@@ -43,7 +43,7 @@ const UserAuthForm = ({ type }) => {
 
     //setting server Route
 
-    let serverRoute = type == "sign-in" ? "/signin" : "/signup";
+    let serverRoute = type == "sign-in" ? "/singin" : "/signup";
 
     //regx validation for email and password
     let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // regex for email

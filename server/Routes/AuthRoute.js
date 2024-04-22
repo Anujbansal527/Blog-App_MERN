@@ -1,5 +1,5 @@
 import express from "express"
-import { AddComment, DeleteComment, GetReplies, GoogleAuth, TrendingBlogs, UpdateProfile, allLatestBlogsCount, allNotificationCount, authSignin, authSignup, changePassword, createBlog, getBlogComment, getBlogs, imgURLUpload, isLiked, latestBlog, likeBlog, newNotification, notifications, searchBlogCount, searchBlogs, searchUser, updateProfileImg, userProfile } from "../Controller/authController.js";
+import { AddComment, DeleteComment, GetReplies, GoogleAuth, TrendingBlogs, UpdateProfile, allLatestBlogsCount, allNotificationCount, authSignin, authSignup, changePassword, createBlog, deleteBlog, getBlogComment, getBlogs, getUserWrittenBlogs, getUserWrittenBlogsCount, imgURLUpload, isLiked, latestBlog, likeBlog, newNotification, notifications, searchBlogCount, searchBlogs, searchUser, updateProfileImg, userProfile } from "../Controller/authController.js";
 import { verifyToken } from "../MiddleWare/verifyToken.js";
 const router = express.Router();
 
@@ -7,8 +7,8 @@ const router = express.Router();
 //signup
 router.route("/signup").post(authSignup);
 
-//signin
-router.route("/signin").post(authSignin);
+//singin
+router.route("/singin").post(authSignin);
 
 //google auth route
 router.route("/google-auth").post(GoogleAuth);
@@ -78,5 +78,15 @@ router.route("/notifications").post(verifyToken,notifications)
 
 //all-notification-count
 router.route("/all-notification-count").post(verifyToken,allNotificationCount)
+
+//user-writen-blogs
+router.route("/user-writen-blogs").post(verifyToken,getUserWrittenBlogs)
+
+//user-writen-blogs-count
+router.route("/user-writen-blogs-count").post(verifyToken,getUserWrittenBlogsCount)
+
+//delete-blog
+router.route("/delete-blog").post(verifyToken,deleteBlog)
+
 
 export default router;  

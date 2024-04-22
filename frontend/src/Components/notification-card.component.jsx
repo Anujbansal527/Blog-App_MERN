@@ -40,7 +40,7 @@ const NotificationCard = ({ data , index , notificationState}) => {
         setNotifications({...notfications , results , totalDocs:totalDocs-1 , deleteDocCount:notfications.deleteDocCount+1});
 
       })
-      .catch(error => {
+      .catch(error => { 
         console.log(error.message)
       })
 
@@ -66,6 +66,7 @@ const NotificationCard = ({ data , index , notificationState}) => {
                 {
                     type == "reply" ? 
                     <div className='p-4 mt-4 rounded-md bg-grey'>
+                        {console.log(data)}
                         <p>{replied_on_comment.comment}</p>
                     </div> 
                     :

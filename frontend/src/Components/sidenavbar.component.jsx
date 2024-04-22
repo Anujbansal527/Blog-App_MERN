@@ -18,7 +18,7 @@ const SideNavBar = () => {
 
   let sideBarIcon = useRef();
 
-  let pageStateTab = useRef();
+  let pageStateTab = useRef(); 
 
   let changePageState = (e) => {
       
@@ -41,7 +41,7 @@ const SideNavBar = () => {
   },[pageState])
 
   return (
-    access_token === null ? <Navigate to={"/signin"}/> :
+    access_token === null ? <Navigate to={"/singin"}/> :
     <>
     
       <section className="relative flex gap-10 py-0 m-0 max:md:flex-col">

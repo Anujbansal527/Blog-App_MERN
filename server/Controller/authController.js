@@ -112,7 +112,7 @@ export const authSignup = (req, res) => {
   }
 };
 
-//signin
+//singin
 export const authSignin = (req, res) => {
   try {
     //fetch data from frontend
@@ -190,7 +190,7 @@ export const GoogleAuth = async (req, res) => {
             });
           }
         } else {
-          //signin
+          //singin
           let username = await generateUsername(email);
 
           user = new User({
@@ -363,7 +363,7 @@ export const TrendingBlogs = (req, res) => {
       " personal_info.profile_img personal_info.username personal_info.fullname -_id"
     )
     .sort({
-      "activity.total_read": -1,
+      "activity.total_reads": -1,
       "activity.total_likes": -1,
       publishedAt: -1,
     })
@@ -491,7 +491,7 @@ export const getBlogs = (req, res) => {
 
   Blog.findOneAndUpdate(
     { blog_id },
-    { $inc: { "activity.total-reads": incrementVal } }
+    { $inc: { "activity.total_reads": incrementVal } }
   )
     .populate(
       "author",
@@ -949,5 +949,70 @@ export const allNotificationCount = (req,res) => {
   .catch(error => {
     return res.status(500).json({error:error.message})
   })
-
 }
+
+//user-writen-blogs
+export const  getUserWrittenBlogs = (req,res) => {
+
+  let user_id = req.user;
+
+  let { page , draft , query , deleteDocCount} = req.body
+  
+  let maxLimit = 5;
+
+  let skipDoc = (page-1) * maxLimit;
+
+  if(deleteDocCount){
+    skipDoc -= deleteDocCount;
+  }
+
+  Blog.find({author:user_id, draft , title:new RegExp(query,'i') })
+  .skip(skipDoc)
+  .limit(maxLimit)
+  .sort({publishedAt:-1})
+  .select("title banner publishedAt blog_id activity des draft -_id")
+  .then(blogs => {
+    console.log(blogs)
+    return res.status(200).json({blogs});
+  })
+  .catch(err=>{
+    console.log('Error in getting the data from database : ', err);
+    return res.status(500).json({error:err.message})
+  })
+}
+
+//user-writen-blogs-count
+export const getUserWrittenBlogsCount = (req,res) => {
+  let user_id = req.user;
+
+  let{draft , query} =req.body
+ 
+  Blog.countDocuments({author:user_id, draft , title:new RegExp(query,'i') })
+  .then(count => {
+    return res.status(200).json({totalDocs : count})
+  })
+  .catch(err => {
+    console.log(err.message)
+    return res.status(500).json({error:err.message});
+  })
+}
+
+//delete-blog
+export const deleteBlog = (req,res) => {
+  let user_id = req.user
+  let { blog_id} = req.body
+
+  Blog.findOneAndDelete({blog_id})
+  .then(blog => {
+    Notifications.deleteMany({blog:blog_id._id}).then(data => console.log("Notification deleted"))
+    Comments.deleteMany({blog:blog_id._id}).then(data => console.log("Comments deleted"))
+    User.findOneAndUpdate({_id:user_id}, {$pull : {blog:blog._id} , $inc: {"account_info.total_posts":-1} } )
+    .then(user => console.log("Blog Deleted"))
+    return res.status(200).json({status:"Done"})
+  })
+  .catch(error => {
+    return res.status(500).json({error:error.message})
+  })
+}
+
+

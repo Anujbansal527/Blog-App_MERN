@@ -13,6 +13,7 @@ import SideNavBar from "./Components/sidenavbar.component";
 import EditProfile from "./Pages/edit-profile.page";
 import ChangePassword from "./Pages/change-password.page";
 import Notification from "./Pages/notifications.page";
+import BlogsManage from "./Pages/manage-blogs.page";
 
 
 //creating context 
@@ -41,6 +42,7 @@ const App = () => {
             <Route path="/" element={<Navbar />}>
                 <Route index element={<HomePage/>}/>
                 <Route path="dashboard" element={<SideNavBar/>}>
+                    <Route path="blogs" element={<BlogsManage/>}/>
                     <Route path="notification" element={<Notification/>}/>
                 </Route>
                 <Route path="settings" element={<SideNavBar/>}>
