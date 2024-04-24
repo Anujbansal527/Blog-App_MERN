@@ -10,6 +10,7 @@ import TrendingBlogs from "../Components/nobanner-blog-post.component";
 import NoDataMessage from "../Components/nodata.component";
 import { filterPaginationData } from "../Common/filter-pagination-data";
 import LoadMore from "../Components/load-more.component";
+import SEO from "../Common/SEO";
 
 const HomePage = () => {
 
@@ -30,6 +31,7 @@ const HomePage = () => {
     "health",
     "sports",
     "nature",
+    "Art"
   ];
 
   const fetchLatestBlog = ({ page = 1 }) => {
@@ -110,6 +112,8 @@ const HomePage = () => {
 
   return (
     <AnimationWrapper>
+        <SEO  page_title={" Home "} />
+    
       <section className="h-cover flex justify-center gap-10">
         <div className="w-full">
           <InPageNavigation

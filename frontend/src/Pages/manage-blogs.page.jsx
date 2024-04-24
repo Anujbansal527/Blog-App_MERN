@@ -13,6 +13,7 @@ import AnimationWrapper from '../Common/page-animation'
 import { ManageDraftBlog, ManagePublicBlog } from '../Components/manage-blogcard.component'
 import LoadMore from '../Components/load-more.component'
 import { useSearchParams } from 'react-router-dom'
+import SEO from '../Common/SEO'
 
 const BlogsManage = () => {
     
@@ -83,6 +84,7 @@ const BlogsManage = () => {
 
 return (
     <>
+    <SEO page_title={"Mange Blogs"} />
         <h1 className='max-md:hidden'>Manage Blogs</h1>
         <Toaster/>
         <div className='relative max-md:mt-5 md:mt-8 mb-10'>
@@ -122,7 +124,7 @@ return (
                 drafts.results.length ? 
                     <>
                         {
-                            drafts.results.map((blog , i ) =>
+                            drafts.results.map((blog , i ) => 
                             {
                                 return <AnimationWrapper key={i} transition={{delay: i * 0.04}}>
                                         <ManageDraftBlog blog={{...blog, index:i , setStatFun:setDrafts }}  />

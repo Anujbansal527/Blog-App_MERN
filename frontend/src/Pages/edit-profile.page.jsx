@@ -12,6 +12,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import InputBox from '../Components/imput.component';
 import { uploadImage } from '../Common/aws';
 import { storeInSession } from '../Common/session';
+import SEO from '../Common/SEO';
 
 const EditProfile = () => {
     
@@ -78,7 +79,6 @@ const EditProfile = () => {
                 { url },
                 { headers: { Authorization: `Bearer ${access_token}` } })
                 .then(({data})=>{
-                    
                     let newUserAuth = { ...userAuth,profile_img:data.profile_img}
 
                     storeInSession("user",JSON.stringify(newUserAuth)) 
@@ -158,6 +158,7 @@ const EditProfile = () => {
 }
   return (  
     <AnimationWrapper>
+    <SEO  page_title={` ${profile_username}`} />
         {
             loading ? <Loader/> : 
             <form ref={editProfileForm}>
@@ -173,7 +174,7 @@ const EditProfile = () => {
                     </div>
                         <img src={profile_img} ref={profileImgEle}/>
                     </label>
-                    <input type='file' id='uploadImg' accept='.jpeg .png .jpg' hidden onChange={ImagePreview}/>
+                    <input type='file' id='uploadImg' accept='.jpeg, .png, .jpg' hidden onChange={ImagePreview}/>
                 
                 <button onClick={imageUpload} className='btn-light mt-5 max-lg:center lf:w-full px-10'>Upload</button>
                     </div>

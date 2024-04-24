@@ -36,7 +36,7 @@ router.route("/search-blog-count").post(searchBlogCount);
 
 //search-users
 router.route("/search-users").post(searchUser)
-
+ 
 //user profile
 router.route("/get-profile").post(userProfile);
 

@@ -11,6 +11,7 @@ import NoDataMessage from "../Components/nodata.component";
 import LoadMore from "../Components/load-more.component";
 import InPageNavigation from "../Components/inpage-navigation.component";
 import PageNotFound from "./404.page";
+import SEO from "../Common/SEO";
 
 export const proData = {
   personal_info: {
@@ -110,13 +111,14 @@ const ProfilePage = () => {
 
   return (
     <AnimationWrapper>
+    <SEO  page_title={`Profile - ${username}`} />
         {
             loading ? 
             <Loader/> :
             profile_username.length 
             ? 
-            <section className="h-cover md:flex flex-row-reverse items-start gap-5 min-[1100px]:gap-12">
-                <div className="flex flex-col max-md:items-center gap-5 min-w-[250px] md:w-[50%] md:pl-8 md:border-1 border-grey md:sticky md:top-[100px] md:pl-10">
+            <section className="h-cover md:flex flex-row-reverse justify-center items-start gap-5 min-[1100px]:gap-12">
+                <div className="flex flex-col  justify-center  items-center max-md:items-center gap-5 min-w-[250px] md:w-[50%] md:pl-8 md:border-1 border-grey md:sticky md:top-[100px] md:pl-10">
                     <img src={profile_img} alt="profile" className="w-48 h-48 bg-grey rounded-full md:w-32 md:h-32"/>
                     <h1 className="text-2xl font-medium">@{profile_username}</h1>
                     <p className="text-xl capitalize h-6">{fullname}</p>
