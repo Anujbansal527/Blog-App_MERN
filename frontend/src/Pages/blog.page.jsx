@@ -10,6 +10,7 @@ import BlogIntraction from '../Components/blog-interaction.component';
 import BlogPost from '../Components/blog-post.component';
 import BlogContent from '../Components/blog-content.component';
 import CommentContainer, { fetchComment } from '../Components/comments.component';
+import SEO from '../Common/SEO';
 
 export const blogStructure = {
     title:'',
@@ -80,7 +81,10 @@ const BlogPage = () => {
     }
 
   return (
-    <AnimationWrapper>
+    <>
+        <AnimationWrapper>
+        <SEO  page_title={`${title}`} />
+
     {
         loading ? <Loader/>
         :
@@ -146,6 +150,8 @@ const BlogPage = () => {
         </BlogContext.Provider>
     }
     </AnimationWrapper>
+    </>
+    
   )
 }
 

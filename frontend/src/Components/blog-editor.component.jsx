@@ -34,7 +34,6 @@ const BlogEditor = () => {
 
   useEffect(() => {
     if (!textEditor.isReady) {
-      console.log(content)
       setTextEditor(
         new EditorJs({
           holderId: "textEditor",
@@ -71,7 +70,6 @@ const BlogEditor = () => {
   };
 
   const TitleKeyDown = (e) => {
-    console.log(e);
 
     if (e.keyCode == 13) {
       e.preventDefault();
@@ -196,7 +194,7 @@ const BlogEditor = () => {
       <Toaster />
       <AnimationWrapper>
         <section>
-          <div className="mx-auto max-w-[900px] w-full">
+          <div className="mx-auto max-w-[900px] w-full border-dark-grey pl-[100px] pr-[100px] pt-[20px]">
             <div className="relative aspect-video hover:opacity-80 bg-white border-4 border-grey ">
               <label htmlFor="uploadBanner">
                 <img

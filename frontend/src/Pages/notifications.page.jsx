@@ -7,6 +7,7 @@ import AnimationWrapper from "../Common/page-animation";
 import NotificationCard from "../Components/notification-card.component";
 import NoDataMessage from "../Components/nodata.component";
 import LoadMore from "../Components/load-more.component";
+import SEO from "../Common/SEO";
 
 const Notification = () => {
   const [filter, setFilter] = useState("all");
@@ -60,6 +61,7 @@ const Notification = () => {
 
   return (
     <div>
+    <SEO  page_title={" Notifications "} />
       <h1 className="max-md:hidden">Recent Activity</h1>
 
       <div className="my-8 flex gap-6">

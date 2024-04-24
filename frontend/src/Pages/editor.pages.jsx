@@ -8,6 +8,7 @@ import BlogEditor from '../Components/blog-editor.component'
 import PublishForm from '../Components/publish-form.component'
 import Loader from '../Components/loader.component'
 import axios from 'axios'
+import SEO from '../Common/SEO'
 
 const blogStructure = {
     title: '',
@@ -55,6 +56,7 @@ const Editor = () => {
  
     return (
         <>
+        <SEO  page_title={" Editor "} />
         <EditorContext.Provider value={ {blog , setBlog , editorState ,setEditorState ,textEditor ,setTextEditor}}>
             {
                 access_token === null ? <Navigate to={"/singin"} />

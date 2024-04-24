@@ -9,6 +9,7 @@ import axios from "axios";
 import { filterPaginationData } from "../Common/filter-pagination-data";
 import AnimationWrapper from "../Common/page-animation";
 import UserCard from "../Components/usercard.component";
+import SEO from "../Common/SEO";
 
 const SearchPage = () => {
 
@@ -40,7 +41,6 @@ const SearchPage = () => {
     }
 
     const fetchUsers = () => {
-        console.log(query)
         axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/v1/auth/search-users`,{query})
         .then(({data:{users}})=> {
 
@@ -79,6 +79,7 @@ const SearchPage = () => {
 
   return (
     <section className="h-cover flex justify-center gap-10">
+        <SEO  page_title={`Search ${query}`} />
       <div className="w-full">
         <InPageNavigation
           routes={[`Search Results from " ${query}"`, "Account Matched"]}

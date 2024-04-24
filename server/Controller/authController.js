@@ -336,19 +336,19 @@ export const createBlog = (req, res) => {
 export const latestBlog = (req, res) => {
   let { page } = req.body;
 
-  let maxLimit = 5;
+  let maxLimit = 4;
 
   Blog.find({ draft: false })
     .populate(
       "author",
       " personal_info.profile_img personal_info.username personal_info.fullname -_id"
     )
-    .sort({ publishedAt: -1 })
+    .sort({ "publishedAt": -1 })
     .select("blog_id title des banner activity tags publishedAt -_id")
     .skip((page - 1) * maxLimit)
     .limit(maxLimit)
     .then((blogs) => {
-      return res.status(200).json({ blogs });
+      return res.status(200).json({blogs});
     })
     .catch((error) => {
       return res.status(500).json({ error: error.message });
@@ -423,7 +423,7 @@ export const allLatestBlogsCount = (req, res) => {
       console.log(error.message);
       return res.status(500).json({ error: error.message });
     });
-};
+}; 
 
 //search-blog-count
 export const searchBlogCount = (req, res) => {
@@ -798,8 +798,10 @@ export const updateProfileImg = (req,res) => {
   
   let {url} = req.body;
 
-  User.findOneAndUpdate({id:req.user} , {"personal_info.profile_img":url})
-  .then(() => {
+  let id = req.user;
+
+  User.findOneAndUpdate({_id:id} , {"personal_info.profile_img":url})
+  .then((data) => {
     return res.status(200).json({profile_img:url})
   })
   .catch(error => {
@@ -881,52 +883,53 @@ export const newNotification = (req,res) => {
 }
 
 //notifications
-export const notifications = (req,res) =>{
+  export const notifications = (req,res) =>{
 
-  let user_id = req.user;
-
-  let {page , filter , deleteDocCount} = req.body;
-
-  let maxLimit = 10;
-
-  let findQuery = { notification_for:user_id , user:{$ne:user_id}}
-
-  let skipDoc = (page-1)*maxLimit;
-
-  if(filter != 'all'){
-    findQuery.type = filter
-  }
-
-  if(deleteDocCount){
-    skipDoc -= deleteDocCount
-  }
-
-  Notifications.find(findQuery)
-  .skip(skipDoc)
-  .limit(maxLimit)
-  .populate("blog"," title blog_id")
-  .populate("user","personal_info.fullname  personal_info.username personal_info.profile_img")
-  .populate("comment","comment")
-  .populate("replied_on_comment","comment")
-  .populate("reply","comment")
-  .sort({createdAt: -1})
-  .select("createdAt type seen reply")
-  .then(notifications => {
-
-    Notifications.updateMany(findQuery,{seen:true})
-    .skip()
+    let user_id = req.user;
+  
+    let {page , filter , deleteDocCount} = req.body;
+  
+    let maxLimit = 10;
+  
+    let findQuery = { notification_for:user_id , user:{$ne:user_id}}
+  
+    let skipDoc = (page-1)*maxLimit;
+  
+    if(filter != 'all'){
+      findQuery.type = filter
+    }
+  
+    if(deleteDocCount){
+      skipDoc -= deleteDocCount
+    }
+  
+    Notifications.find(findQuery)
+    .skip(skipDoc)
     .limit(maxLimit)
-    .then(() => {
-      console.log('notification seen')
+    .populate("blog"," title blog_id")
+    .populate("user","personal_info.fullname  personal_info.username personal_info.profile_img")
+    .populate("comment","comment")
+    .populate("replied_on_comment","comment")
+    .populate("reply","comment")
+    .sort({createdAt: -1})
+    .select("createdAt type seen reply")
+    .then(notifications => {
+  
+      Notifications.updateMany(findQuery,{seen:true})
+      .skip()
+      .limit(maxLimit)
+      .then(() => {
+        console.log('notification seen')
+      })
+  
+      return res.status(200).json({notifications})
     })
-
-    return res.status(200).json({notifications})
-  })
-  .catch(error => {
-    console.log(error.message)
-    return res.status(500).json({error:error.message})
-  })
-}
+    .catch(error => {
+      console.log(error.message)
+      return res.status(500).json({error:error.message})
+    })
+  }
+  
 
 
 //all-notification-count

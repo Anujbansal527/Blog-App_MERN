@@ -7,6 +7,7 @@ import InputBox from '../Components/imput.component'
 import toast, { Toaster } from 'react-hot-toast'
 import axios from 'axios'
 import { UserContext } from '../App'
+import SEO from '../Common/SEO'
 
 
 
@@ -63,6 +64,7 @@ const ChangePassword = () => {
 
     return (
     <AnimationWrapper>
+    <SEO  page_title={" Change Password "} />
     <Toaster/>
         <form ref={ChangePasswordForm}>
             <h1 className='max-md:hidden'>Change Password</h1>

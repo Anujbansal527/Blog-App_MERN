@@ -8,6 +8,7 @@ import { useContext } from "react";
 import { UserContext } from "../App";
 import { storeInSession } from "../Common/session";
 import { authWithGoogle } from "../Common/firebase";
+import SEO from "../Common/SEO";
 
 const UserAuthForm = ({ type }) => {
 
@@ -117,6 +118,7 @@ const UserAuthForm = ({ type }) => {
     <Navigate to="/" /> 
     :
     <AnimationWrapper keyValue={type}>
+        <SEO  page_title={`${type.replace("-", " ")}`} /> 
       <section className="h-cover flex items-center justify-center ">
         <Toaster />
         <form id="formElement" className="w-[80%] max-w-[400px]">

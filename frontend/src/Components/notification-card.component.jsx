@@ -22,6 +22,7 @@ const NotificationCard = ({ data , index , notificationState}) => {
         setIsReplying(prev => !prev)
     }
 
+
     const DeleteBtn = (comment_id , type , target) => {
         
         target.setAttribute("disabled" , true)
@@ -66,7 +67,6 @@ const NotificationCard = ({ data , index , notificationState}) => {
                 {
                     type == "reply" ? 
                     <div className='p-4 mt-4 rounded-md bg-grey'>
-                        {console.log(data)}
                         <p>{replied_on_comment.comment}</p>
                     </div> 
                     :
